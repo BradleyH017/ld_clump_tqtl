@@ -3,7 +3,7 @@
 # Commands to compute (bash)
 module load HGI/softpack/groups/macromapsqtl/macromapsqtlR4/10
 gene=ENSG00000143801
-gene_name=PSEN2
+gene_name=MAML2
 awk -v g=$gene '$1 == g' input/variants_per_gene_list.txt | awk '{print $2}' | uniq > temp/${gene}_variants.txt
 num_chr=$(awk -F':' 'NR==1 {gsub("chr", "", $1); print $1}' temp/${gene}_variants.txt)
 plink --bfile /lustre/scratch126/humgen/projects/sc-eqtl-ibd/data/genotypes/eQTL_genotypes_march_2024/plink_march_2025/plink_geno_chr${num_chr}_plink --extract temp/${gene}_variants.txt --make-bed --out temp/${gene}
