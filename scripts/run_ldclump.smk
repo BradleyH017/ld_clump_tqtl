@@ -8,11 +8,11 @@ with open(config["gene_input"], "r") as f:
 # For each gene, run the clumping
 rule run_all:
 	input:
-		expand("{outdir}/clumped_all.txt", outdir=config["outdir"])
+		expand("{outdir}_thresh{ldthresh}/clumped_all.txt", outdir=config["outdir"], ldthresh=config["ldthresh"])
     
 rule run_LD_clump:
     output:
-        "{outdir}/per_gene/{gene}_clumped_format.txt" 
+        "{outdir}_thresh{ldthresh}/per_gene/{gene}_clumped_format.txt" 
     params:
         plink_prefix=config["plink_prefix"],
         plink_suffix=config["plink_suffix"],
@@ -25,7 +25,8 @@ rule run_LD_clump:
     shell:
         r"""
             # Make out dir
-            mkdir -p {params.outdir}/per_gene
+            mkdir -p {params.outdir}_thresh{params.ldthresh}
+            mkdir -p {params.outdir}_thresh{params.ldthresh}/per_gene
             mkdir -p temp
 
             # Extract the variants of interest from the gene x variant list. Put in temporary file
@@ -53,13 +54,13 @@ rule run_LD_clump:
 
                 # Simplify the output
                 echo "..Reformatting"
-                Rscript scripts/simplify_clump.r temp/{wildcards.gene}.clumped {params.outdir}/per_gene/{wildcards.gene}_clumped_format.txt
+                Rscript scripts/simplify_clump.r temp/{wildcards.gene}.clumped {params.outdir}_thresh{params.ldthresh}/per_gene/{wildcards.gene}_clumped_format.txt
 
             else
 
                 echo ".. ~~~~~~~ 1 variants for this gene, NOT LD clumping ~~~~~~~"
                 variant=$(awk '{{print $1}}' temp/{wildcards.gene}_variants.txt | head -n 1)
-                echo -e "{wildcards.gene}\t${{variant}}\t${{variant}}" > {params.outdir}/per_gene/{wildcards.gene}_clumped_format.txt
+                echo -e "{wildcards.gene}\t${{variant}}\t${{variant}}" > {params.outdir}_thresh{params.ldthresh}/per_gene/{wildcards.gene}_clumped_format.txt
 
             fi
 
@@ -69,16 +70,17 @@ rule run_LD_clump:
         """
 
 def gather_per_gene_outputs(wildcards):
-    return expand("{outdir}/per_gene/{gene}_clumped_format.txt",
-                  outdir=config["outdir"], gene=genes)
+    return expand("{outdir}_thresh{ldthresh}/per_gene/{gene}_clumped_format.txt",
+                  outdir=config["outdir"], ldthresh=config["ldthresh"], gene=genes)
 
 rule aggregate:
     input:
         gather_per_gene_outputs
     output:
-        "{outdir}/clumped_all.txt"
+        "{outdir}_thresh{ldthresh}/clumped_all.txt"
     params:
-        outdir=config["outdir"]
+        outdir=config["outdir"],
+        ldthresh=config["ldthresh"]
     threads: 1
     shell:
         r"""
@@ -86,7 +88,7 @@ rule aggregate:
             echo -e "phenotype_id\tvariant_id\tqtl_clump_index" > {output}
 
             # Loop through input
-            for f in {params.outdir}/per_gene/*; do
+            for f in {params.outdir}_thresh{ldthresh}/per_gene/*; do
                 cat $f >> {output}
             done
         """
