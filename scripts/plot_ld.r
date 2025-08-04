@@ -3,7 +3,7 @@ library(dplyr)
 library(ComplexHeatmap)
 library(reshape2)
 library(circlize)
-ld = read.delim("temp/clump_index_ld.ld", sep = "") %>% 
+ld = read.delim("temp_plot/clump_index_ld.ld", sep = "") %>% 
     filter(SNP_A != SNP_B)
 
 # Prep for heatmap
@@ -21,7 +21,7 @@ col_fun <- colorRamp2(c(0, 1), c("white", "red"))
 
 # Create heatmap
 ppi=300
-png("temp/heatmap_ld.png", res=ppi, width=8*ppi, height=8*ppi)
+png("temp_plot/heatmap_ld.png", res=ppi, width=8*ppi, height=8*ppi)
 Heatmap(ld_matrix,
         name = "R²",
         col = col_fun,
