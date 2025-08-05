@@ -88,7 +88,7 @@ rule aggregate:
             echo -e "phenotype_id\tvariant_id\tqtl_clump_index" > {output}
 
             # Loop through input
-            for f in {params.outdir}_thresh{ldthresh}/per_gene/*; do
+            for f in {params.outdir}_thresh{params.ldthresh}/per_gene/*; do
                 cat $f >> {output}
             done
         """
