@@ -38,11 +38,12 @@ cond.sumstat.df <- read_conditional_eqtls(sumstats.all.basedir)
 cond.sumstat.df <- cond.sumstat.df %>% 
     mutate(pheno_annotation = paste0(phenotype_id, "-", annotation))
 
+# Column names described in https://github.com/broadinstitute/tensorqtl/blob/0c4db65a0cdc47f3b824ae530b89d270ef5e0096/docs/outputs.md?plain=1#L51
 # get a unique list of phenotype IDs and variants
 qtl_gene_leads = cond.sumstat.df %>% 
     filter(
         pheno_annotation %in% sig.gene.condition,
-        pval_perm < 0.05
+        pval_beta < 0.05 
     ) %>% 
     group_by(variant_id, phenotype_id) %>% 
     summarise(
@@ -50,7 +51,7 @@ qtl_gene_leads = cond.sumstat.df %>%
     ) %>% 
     mutate(
         type="eQTL"
-    ) # 188854
+    ) # 188357
 
 # Load in interaction eQTLs
 interactions = read_ieqtls(sumstats.interaction.basedir) %>% 
@@ -76,7 +77,7 @@ int_gene_leads = interactions %>%
 qtl_gene_leads = qtl_gene_leads %>% bind_rows(int_gene_leads) %>% 
     group_by(variant_id, phenotype_id) %>% 
     slice_min(P) %>% 
-    distinct() # 189,919
+    distinct() # 189,422
 
 
 ##################
@@ -134,7 +135,7 @@ coqtl = coloc_gene_leads %>%
 nrow(coqtl) # 189946
 table(coqtl$type)
 #            coloc              eQTL interaction_coloc  interaction_eQTL 
-#             763            188118                6              1059
+#             763            187621                6              1059
 
 # summary_genes
 write.table(coqtl %>% pull(phenotype_id) %>% unique(), paste0(out.dir, "/gene_list.txt"), col.names=F, row.names=F, quote=F)
