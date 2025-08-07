@@ -22,8 +22,9 @@ which singularity
 
 
 # Copy config to results
-mkdir -p results
-cp $config_var results/
+thresh=$(grep "thresh" scripts/config.yaml | awk '{print $2}')
+mkdir -p results_${thresh}
+cp $config_var results_${thresh}/
 
 # Make a log dir
 mkdir -p sm_logs
