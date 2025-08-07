@@ -42,8 +42,7 @@ cond.sumstat.df <- cond.sumstat.df %>%
 # get a unique list of phenotype IDs and variants
 qtl_gene_leads = cond.sumstat.df %>% 
     filter(
-        pheno_annotation %in% sig.gene.condition,
-        pval_beta < 0.05 
+        pheno_annotation %in% sig.gene.condition # No need to apply additional filter to pval_perm or pval_beta. 
     ) %>% 
     group_by(variant_id, phenotype_id) %>% 
     summarise(
@@ -51,7 +50,7 @@ qtl_gene_leads = cond.sumstat.df %>%
     ) %>% 
     mutate(
         type="eQTL"
-    ) # 188357
+    ) # 194233
 
 # Load in interaction eQTLs
 interactions = read_ieqtls(sumstats.interaction.basedir) %>% 
@@ -77,7 +76,7 @@ int_gene_leads = interactions %>%
 qtl_gene_leads = qtl_gene_leads %>% bind_rows(int_gene_leads) %>% 
     group_by(variant_id, phenotype_id) %>% 
     slice_min(P) %>% 
-    distinct() # 189,422
+    distinct() # 195,296
 
 
 ##################
@@ -135,7 +134,7 @@ coqtl = coloc_gene_leads %>%
 nrow(coqtl) # 189946
 table(coqtl$type)
 #            coloc              eQTL interaction_coloc  interaction_eQTL 
-#             763            187621                6              1059
+#             763            193495                6              1057
 
 # summary_genes
 write.table(coqtl %>% pull(phenotype_id) %>% unique(), paste0(out.dir, "/gene_list.txt"), col.names=F, row.names=F, quote=F)

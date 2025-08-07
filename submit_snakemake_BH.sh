@@ -24,7 +24,7 @@ which singularity
 # Copy config to results
 thresh=$(grep "thresh" scripts/config.yaml | awk '{print $2}')
 mkdir -p results_${thresh}
-cp $config_var results_${thresh}/
+cp $config_var results_thresh${thresh}/
 
 # Make a log dir
 mkdir -p sm_logs
@@ -44,4 +44,4 @@ snakemake -j 20000 \
     --restart-times 0 \
     --snakefile $PWD/scripts/run_ldclump.smk
 
-# bsub -M 10000 -a "memlimit=True" -R "select[mem>10000] rusage[mem=10000] span[hosts=1]" -o sm_logs/snakemake_master-%J-output.log -e sm_logs/snakemake_master-%J-error.log -q oversubscribed -J "snakemake_master_CLUMP" < submit_snakemake_BH.sh 
+# bsub -M 10000 -a "memlimit=True" -R "select[mem>10000] rusage[mem=10000] span[hosts=1]" -o sm_logs/snakemake_master-%J-output.log -e sm_logs/snakemake_master-%J-error.log -q long -J "snakemake_master_CLUMP" < submit_snakemake_BH.sh 
